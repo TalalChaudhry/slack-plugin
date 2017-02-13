@@ -83,6 +83,7 @@ public class AbstractProjectConfigMigrator {
         slackNotifier.setNotifyRepeatedFailure(slackJobProperty.getNotifyRepeatedFailure());
         slackNotifier.setfailureNotificationThreshold(slackJobProperty.getFailureNotificationThreshold());
         slackNotifier.setNotifyFailureAfterNTimes(slackJobProperty.getNotifyFailureAfterNTimes());
+        slackNotifier.setNotifyBackToNormalAfterNFailures(slackJobProperty.getNotifyBackToNormalAfterNFailures());
         slackNotifier.setIncludeTestSummary(slackJobProperty.includeTestSummary());
         slackNotifier.setCommitInfoChoice(getCommitInfoChoice(slackJobProperty));
         slackNotifier.setIncludeCustomMessage(slackJobProperty.includeCustomMessage());

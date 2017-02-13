@@ -38,13 +38,16 @@
             <f:checkbox name="slackNotifyFailureAfterNTimes" value="true"
                         checked="${instance.getNotifyFailureAfterNTimes()}"/>
             <select name="slackFailureNotificationThreshold">
-                <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="3">4</option>
                 <option value="5">5</option>
             </select>
         </f:entry>
+
+        <f:entry title="Notify Back To Normal After N Failues">
+                <f:checkbox name="slackNotifyBackToNormalAfterNFailures" value="true" checked="${instance.getNotifyBackToNormalAfterNFailures()}"/>
+            </f:entry>
 
         <f:entry title="Include Test Summary">
             <f:checkbox name="includeTestSummary" value="true" checked="${instance.includeTestSummary()}"/>

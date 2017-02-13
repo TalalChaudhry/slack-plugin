@@ -53,6 +53,7 @@ public class BackwordsCompatible_1_8_SlackNotifierTest {
         assertTrue(notifier.getNotifyFailure());
         assertFalse(notifier.getNotifyBackToNormal());
         assertFalse(notifier.getNotifyRepeatedFailure());
+        assertFalse(notifier.getNotifyBackToNormalAfterNFailures());
         assertEquals(0, notifier.getFailureNotificationThreshold());
         assertFalse(notifier.getNotifyFailureAfterNTimes());
         assertFalse(notifier.includeTestSummary());
@@ -84,6 +85,7 @@ public class BackwordsCompatible_1_8_SlackNotifierTest {
         assertFalse(notifier.getNotifyRepeatedFailure());
         assertEquals(0, notifier.getFailureNotificationThreshold());
         assertFalse(notifier.getNotifyFailureAfterNTimes());
+        assertFalse(notifier.getNotifyBackToNormalAfterNFailures());
         assertFalse(notifier.includeTestSummary());
         assertEquals(CommitInfoChoice.NONE, notifier.getCommitInfoChoice());
         assertFalse(notifier.includeCustomMessage());
@@ -113,6 +115,7 @@ public class BackwordsCompatible_1_8_SlackNotifierTest {
         assertFalse(notifier.getNotifyRepeatedFailure());
         assertEquals(0, notifier.getFailureNotificationThreshold());
         assertFalse(notifier.getNotifyFailureAfterNTimes());
+        assertFalse(notifier.getNotifyBackToNormalAfterNFailures());
         assertFalse(notifier.includeTestSummary());
         assertEquals(CommitInfoChoice.NONE, notifier.getCommitInfoChoice());
         assertFalse(notifier.includeCustomMessage());
@@ -170,6 +173,7 @@ public class BackwordsCompatible_1_8_SlackNotifierTest {
         assertEquals(3, notifier.getFailureNotificationThreshold());
         assertTrue(notifier.getNotifyRepeatedFailure());
         assertTrue(notifier.getNotifyFailureAfterNTimes());
+        assertTrue(notifier.getNotifyBackToNormalAfterNFailures());
         assertTrue(notifier.includeTestSummary());
         assertEquals(CommitInfoChoice.AUTHORS_AND_TITLES, notifier.getCommitInfoChoice());
         assertTrue(notifier.includeCustomMessage());
