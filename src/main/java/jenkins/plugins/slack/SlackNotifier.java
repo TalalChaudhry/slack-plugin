@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
+import static java.lang.Integer.valueOf;
 
 public class SlackNotifier extends Notifier {
 
@@ -54,6 +55,9 @@ public class SlackNotifier extends Notifier {
     private boolean notifyFailure;
     private boolean notifyBackToNormal;
     private boolean notifyRepeatedFailure;
+    private int failureNotificationThreshold;
+    private boolean notifyFailureAfterNTimes;
+    private boolean notifyBackToNormalAfterNFailures;
     private boolean includeTestSummary;
     private CommitInfoChoice commitInfoChoice;
     private boolean includeCustomMessage;
@@ -140,6 +144,16 @@ public class SlackNotifier extends Notifier {
         return notifyRepeatedFailure;
     }
 
+    public int getFailureNotificationThreshold() {
+        return failureNotificationThreshold;
+    }
+
+    public boolean getNotifyBackToNormalAfterNFailures() { return notifyBackToNormalAfterNFailures; }
+
+    public boolean getNotifyFailureAfterNTimes() {
+        return notifyFailureAfterNTimes;
+    }
+
     public boolean includeCustomMessage() {
         return includeCustomMessage;
     }
@@ -188,6 +202,18 @@ public class SlackNotifier extends Notifier {
         this.notifyRepeatedFailure = notifyRepeatedFailure;
     }
 
+    public void setfailureNotificationThreshold(int failureNotificationThreshold) {
+        this.failureNotificationThreshold = failureNotificationThreshold;
+    }
+
+    public void setNotifyFailureAfterNTimes(boolean notifyFailureAfterNTimes) {
+        this.notifyFailureAfterNTimes = notifyFailureAfterNTimes;
+    }
+
+    public void setNotifyBackToNormalAfterNFailures(boolean notifyBackToNormalAfterNFailures) {
+        this.notifyBackToNormalAfterNFailures = notifyBackToNormalAfterNFailures;
+    }
+
     public void setIncludeCustomMessage(boolean includeCustomMessage) {
         this.includeCustomMessage = includeCustomMessage;
     }
@@ -200,7 +226,8 @@ public class SlackNotifier extends Notifier {
     public SlackNotifier(final String teamDomain, final String authToken, final boolean botUser, final String room, final String authTokenCredentialId,
                          final String sendAs, final boolean startNotification, final boolean notifyAborted, final boolean notifyFailure,
                          final boolean notifyNotBuilt, final boolean notifySuccess, final boolean notifyUnstable, final boolean notifyBackToNormal,
-                         final boolean notifyRepeatedFailure, final boolean includeTestSummary, CommitInfoChoice commitInfoChoice,
+                         final boolean notifyRepeatedFailure, final int failureNotificationThreshold, final boolean notifyFailureAfterNTimes,
+                         final boolean notifyBackToNormalAfterNFailures, final boolean includeTestSummary, CommitInfoChoice commitInfoChoice,
                          boolean includeCustomMessage, String customMessage) {
         super();
         this.teamDomain = teamDomain;
@@ -217,6 +244,9 @@ public class SlackNotifier extends Notifier {
         this.notifyUnstable = notifyUnstable;
         this.notifyBackToNormal = notifyBackToNormal;
         this.notifyRepeatedFailure = notifyRepeatedFailure;
+        this.failureNotificationThreshold = failureNotificationThreshold;
+        this.notifyFailureAfterNTimes = notifyFailureAfterNTimes;
+        this.notifyBackToNormalAfterNFailures = notifyBackToNormalAfterNFailures;
         this.includeTestSummary = includeTestSummary;
         this.commitInfoChoice = commitInfoChoice;
         this.includeCustomMessage = includeCustomMessage;
@@ -352,6 +382,7 @@ public class SlackNotifier extends Notifier {
             String tokenCredentialId = json.getString("tokenCredentialId");
             boolean botUser = "true".equals(sr.getParameter("slackBotUser"));
             String room = sr.getParameter("slackRoom");
+
             boolean startNotification = "true".equals(sr.getParameter("slackStartNotification"));
             boolean notifySuccess = "true".equals(sr.getParameter("slackNotifySuccess"));
             boolean notifyAborted = "true".equals(sr.getParameter("slackNotifyAborted"));
@@ -360,13 +391,23 @@ public class SlackNotifier extends Notifier {
             boolean notifyFailure = "true".equals(sr.getParameter("slackNotifyFailure"));
             boolean notifyBackToNormal = "true".equals(sr.getParameter("slackNotifyBackToNormal"));
             boolean notifyRepeatedFailure = "true".equals(sr.getParameter("slackNotifyRepeatedFailure"));
+            int failureNotificationThreshold;
+            try {
+                failureNotificationThreshold = Integer.parseInt(sr.getParameter("slackFailureNotificationThreshold"));
+            } catch(NumberFormatException e) {
+                failureNotificationThreshold = 0;
+            }
+
+            boolean notifyFailureAfterNTimes = "true".equals(sr.getParameter("slackNotifyFailureAfterNTimes"));
+            boolean notifyBackToNormalAfterNFailures = "true".equals(sr.getParameter("slackNotifyBackToNormalAfterNFailures"));
             boolean includeTestSummary = "true".equals(sr.getParameter("includeTestSummary"));
             CommitInfoChoice commitInfoChoice = CommitInfoChoice.forDisplayName(sr.getParameter("slackCommitInfoChoice"));
             boolean includeCustomMessage = "on".equals(sr.getParameter("includeCustomMessage"));
             String customMessage = sr.getParameter("customMessage");
             return new SlackNotifier(teamDomain, token, botUser, room, tokenCredentialId, sendAs, startNotification, notifyAborted,
                     notifyFailure, notifyNotBuilt, notifySuccess, notifyUnstable, notifyBackToNormal, notifyRepeatedFailure,
-                    includeTestSummary, commitInfoChoice, includeCustomMessage, customMessage);
+                    failureNotificationThreshold, notifyFailureAfterNTimes, notifyBackToNormalAfterNFailures, includeTestSummary,
+                    commitInfoChoice, includeCustomMessage, customMessage);
         }
 
         @Override
@@ -439,6 +480,9 @@ public class SlackNotifier extends Notifier {
         private boolean notifyFailure;
         private boolean notifyBackToNormal;
         private boolean notifyRepeatedFailure;
+        private int failureNotificationThreshold;
+        private boolean notifyFailureAfterNTimes;
+        private boolean notifyBackToNormalAfterNFailures;
         private boolean includeTestSummary;
         private boolean showCommitList;
         private boolean includeCustomMessage;
@@ -457,6 +501,9 @@ public class SlackNotifier extends Notifier {
                                 boolean notifyUnstable,
                                 boolean notifyBackToNormal,
                                 boolean notifyRepeatedFailure,
+                                int failureNotificationThreshold,
+                                boolean notifyFailureAfterNTimes,
+                                boolean notifyBackToNormalAfterNFailures,
                                 boolean includeTestSummary,
                                 boolean showCommitList,
                                 boolean includeCustomMessage,
@@ -473,6 +520,9 @@ public class SlackNotifier extends Notifier {
             this.notifyUnstable = notifyUnstable;
             this.notifyBackToNormal = notifyBackToNormal;
             this.notifyRepeatedFailure = notifyRepeatedFailure;
+            this.failureNotificationThreshold = failureNotificationThreshold;
+            this.notifyFailureAfterNTimes = notifyFailureAfterNTimes;
+            this.notifyBackToNormalAfterNFailures = notifyBackToNormalAfterNFailures;
             this.includeTestSummary = includeTestSummary;
             this.showCommitList = showCommitList;
             this.includeCustomMessage = includeCustomMessage;
@@ -554,6 +604,18 @@ public class SlackNotifier extends Notifier {
             return notifyRepeatedFailure;
         }
 
+        @Exported
+        public int getFailureNotificationThreshold() {
+            return failureNotificationThreshold;
+        }
+
+        @Exported
+        public boolean getNotifyFailureAfterNTimes() {
+            return notifyFailureAfterNTimes;
+        }
+
+        @Exported
+        public boolean getNotifyBackToNormalAfterNFailures() { return notifyBackToNormalAfterNFailures; }
         @Exported
         public boolean includeCustomMessage() {
             return includeCustomMessage;

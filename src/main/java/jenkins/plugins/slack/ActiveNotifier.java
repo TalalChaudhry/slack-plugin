@@ -96,10 +96,24 @@ public class ActiveNotifier implements FineGrainedNotifier {
         AbstractProject<?, ?> project = r.getProject();
         Result result = r.getResult();
         AbstractBuild<?, ?> previousBuild = project.getLastBuild();
+
         do {
             previousBuild = previousBuild.getPreviousCompletedBuild();
         } while (previousBuild != null && previousBuild.getResult() == Result.ABORTED);
         Result previousResult = (previousBuild != null) ? previousBuild.getResult() : Result.SUCCESS;
+        Result resultBeforePreviousResult = previousBuild.getPreviousCompletedBuild().getResult();
+
+        AbstractBuild<?, ?> oldBuild = project.getLastBuild();
+
+        int N = notifier.getFailureNotificationThreshold();
+        int count = 0;
+        for (int i=0; i<N; i++) {
+            if (oldBuild != null && oldBuild.getResult() == Result.FAILURE) {
+                count++;
+                oldBuild = oldBuild.getPreviousCompletedBuild();
+            }
+        }
+
         if ((result == Result.ABORTED && notifier.getNotifyAborted())
                 || (result == Result.FAILURE //notify only on single failed build
                     && previousResult != Result.FAILURE
@@ -107,6 +121,13 @@ public class ActiveNotifier implements FineGrainedNotifier {
                 || (result == Result.FAILURE //notify only on repeated failures
                     && previousResult == Result.FAILURE
                     && notifier.getNotifyRepeatedFailure())
+                || (result == Result.FAILURE //notify only after N repeated failures
+                    && count >= N
+                    && notifier.getNotifyFailureAfterNTimes())
+                || (result == Result.SUCCESS
+                    && (previousResult == Result.FAILURE || previousResult == Result.UNSTABLE)
+                    && (resultBeforePreviousResult == Result.FAILURE || resultBeforePreviousResult == Result.UNSTABLE)
+                    && notifier.getNotifyBackToNormalAfterNFailures())
                 || (result == Result.NOT_BUILT && notifier.getNotifyNotBuilt())
                 || (result == Result.SUCCESS
                     && (previousResult == Result.FAILURE || previousResult == Result.UNSTABLE)
