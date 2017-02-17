@@ -124,15 +124,15 @@ public class ActiveNotifier implements FineGrainedNotifier {
                 || (result == Result.FAILURE //notify only after N repeated failures
                     && count >= N
                     && notifier.getNotifyFailureAfterNTimes())
-                || (result == Result.SUCCESS
-                    && (previousResult == Result.FAILURE || previousResult == Result.UNSTABLE)
-                    && (resultBeforePreviousResult == Result.FAILURE || resultBeforePreviousResult == Result.UNSTABLE)
-                    && notifier.getNotifyBackToNormalAfterNFailures())
                 || (result == Result.NOT_BUILT && notifier.getNotifyNotBuilt())
                 || (result == Result.SUCCESS
                     && (previousResult == Result.FAILURE || previousResult == Result.UNSTABLE)
                     && notifier.getNotifyBackToNormal())
                 || (result == Result.SUCCESS && notifier.getNotifySuccess())
+                || (result == Result.SUCCESS
+                    && (previousResult == Result.FAILURE || previousResult == Result.UNSTABLE)
+                    && (resultBeforePreviousResult == Result.FAILURE || resultBeforePreviousResult == Result.UNSTABLE)
+                    && notifier.getNotifyBackToNormalAfterNFailures())
                 || (result == Result.UNSTABLE && notifier.getNotifyUnstable())) {
             getSlack(r).publish(getBuildStatusMessage(r, notifier.includeTestSummary(),
                     notifier.includeCustomMessage()), getBuildColor(r));
